@@ -17,7 +17,7 @@ View a sample file that implements most of the Markdown spec
 Just add the following line to the top of your `.markdown`
 files:
 
-    <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+    <link href="https://burke.services/markdown.css" rel="stylesheet"></link>
 
 ##### Note:
     
@@ -28,4 +28,8 @@ tag. This is not technically correct HTML, but it will parse in any browser.
 ### Contribute
 
 Let's make the Web prettier. Add your own Markdown theme, or contribute to
-mine, [here](http://bitbucket.org/kevinburke/markdowncss).
+mine, [here](https://github.com/kevinburke/markdowncss).
+
+After editing `markdown.css`, `sample.md` or this file, run `make sample` to
+regenerate the HTML pages and the copy of the stylesheet in `sample.md`. `make
+check` fails if they are out of date.

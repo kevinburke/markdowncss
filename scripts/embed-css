@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+# Replace the code block between the BEGIN/END markdown.css markers in a
+# Markdown file with an indented copy of markdown.css, so the sample page
+# always shows the stylesheet it is styled with. Usage:
+#
+#     scripts/embed-css markdown.css sample.md
+#
+# The file is rewritten in place. Fails if either marker is missing.
+set -eu
+
+css=$1
+md=$2
+# awk's getline returns -1 for a missing file, which would silently embed
+# nothing, so check up front.
+if [ ! -r "$css" ]; then
+    echo "embed-css: cannot read $css" >&2
+    exit 1
+fi
+tmp=$(mktemp "${md}.XXXXXX")
+trap 'rm -f "$tmp"' EXIT
+
+awk -v css="$css" '
+/^<!-- BEGIN markdown.css/ {
+    print
+    print ""
+    # The long first line checks that pre blocks wrap instead of scrolling.
+    print "    /* This is a really long comment at the start of the file to test line"
+    print "     * wrapping. */"
+    print ""
+    while ((getline line < css) > 0) {
+        if (line ~ /[^ \t]/) print "    " line; else print ""
+    }
+    close(css)
+    print ""
+    skip = 1; begin = 1
+    next
+}
+/^<!-- END markdown.css/ { skip = 0; end = 1 }
+!skip { print }
+END {
+    if (!begin || !end) {
+        print "embed-css: BEGIN/END markdown.css markers not found in " FILENAME > "/dev/stderr"
+        exit 1
+    }
+}
+' "$md" > "$tmp"
+mv "$tmp" "$md"
+trap - EXIT
